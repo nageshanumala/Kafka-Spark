@@ -1,0 +1,149 @@
+#!/bin/sh
+
+# Example 1
+# Count lines, bytes and words in a document
+# Test as follows:
+#	cat u.tsv | cat | wc
+
+
+HADOOP_STREAMING=/usr/lib/hadoop-0.20-mapreduce/contrib/streaming/hadoop-streaming-2.0.0-mr1-cdh4.6.0.jar
+HSTREAMING="$HADOOP_HOME/bin/hadoop jar $HADOOP_STREAMING"
+
+$HSTREAMING \
+    -input /user/ashokharnal/u.tsv \
+    -output /user/ashokharnal/useless  \
+    -mapper /bin/cat \
+    -reducer /usr/bin/wc
+    
+====================================
+
+#!/bin/sh
+
+# Example 2
+# Execute command directly from awk script
+# Directly writing the awk script in mapper/reducer may introduce bugs
+#   due to quoting
+# Test as follows:
+#	cat u.tsv | cat | awk '{ print $1 , $2 } '
+
+
+HADOOP_STREAMING=/usr/lib/hadoop-0.20-mapreduce/contrib/streaming/hadoop-streaming-2.0.0-mr1-cdh4.6.0.jar
+HSTREAMING="$HADOOP_HOME/bin/hadoop jar $HADOOP_STREAMING"
+
+$HSTREAMING \
+    -input /user/ashokharnal/u.tsv \
+    -output /user/ashokharnal/useless  \
+    -mapper /bin/cat \
+    -reducer 'awk "{ print $1 , $2 }" '
+
+
+======================================
+
+#!/bin/sh
+
+# Example 3
+# Wrap awk script in a shell script.
+# Test as follows:
+#	cat u.tsv | cat | ./p.awk
+
+
+HADOOP_STREAMING=/usr/lib/hadoop-0.20-mapreduce/contrib/streaming/hadoop-streaming-2.0.0-mr1-cdh4.6.0.jar
+HSTREAMING="$HADOOP_HOME/bin/hadoop jar $HADOOP_STREAMING"
+
+# Location of awk file
+#   p.awk
+P="/home/ashokharnal/hadoop_streaming/hstreaming/p.awk"
+
+$HSTREAMING \
+    -input /user/ashokharnal/u.tsv \
+    -output /user/ashokharnal/useless  \
+    -mapper /bin/cat \
+    -reducer $P \
+    -file $P
+    
+-----p.awk
+#!/usr/bin/awk -f
+
+{ print $1 , $2 }    
+
+=============================================
+
+#!/bin/sh
+
+# Example 4
+# Wrap sed script in a shell script.
+# Test as follows:
+#	cat u.tsv | cat | ./s.sed
+
+
+HADOOP_STREAMING=/usr/lib/hadoop-0.20-mapreduce/contrib/streaming/hadoop-streaming-2.0.0-mr1-cdh4.6.0.jar
+HSTREAMING="$HADOOP_HOME/bin/hadoop jar $HADOOP_STREAMING"
+
+# Location of sed file
+#   s.sed
+P="/home/ashokharnal/hadoop_streaming/hstreaming/s.sed"
+
+$HSTREAMING \
+    -input /user/ashokharnal/u.tsv \
+    -output /user/ashokharnal/useless  \
+    -mapper /bin/cat \
+    -reducer  $P \
+    -file $P 
+    
+    
+----------s.sed
+
+#!/bin/sed -f
+
+s/NYSE/MYSE/
+s/ASP/BSP/
+
+====================================================
+
+#!/bin/sh
+
+# Example 5
+# Count lines, bytes and words in a document
+# Test as follows:
+#	cat marketbasket.csv | cat | ./test.awk
+
+
+
+
+$HSTREAMING \
+-input /user/ashokharnal/marketbasket.csv \
+-output /user/ashokharnal/useless  \
+-mapper /bin/cat \
+-reducer /home/ashokharnal/transfrom.awk \
+-file /home/ashokharnal/transfrom.awk
+
+
+--------transform.awk
+
+#!/bin/awk -f
+
+BEGIN {lineno = 1; FS = ","; var = ""}
+	{
+	if (FNR == 1)
+		{
+		for (n=1 ; n <= NF ; n++ )
+			{ 
+				printf("%i ", n);	# Use printf without carriage return ie printf("%i\n", n)
+			}
+		printf("\n") ;
+		}
+		
+	else 
+		{
+			for (i=2 ; i <= NF ; i++)
+				{
+					if ( $i ~ /true/ ) { printf("%i ", i); }
+					
+				}
+			printf("\n") ;
+				
+			
+		}
+	}
+
+=========================================================

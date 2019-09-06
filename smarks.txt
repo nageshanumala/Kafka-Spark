@@ -1,0 +1,8 @@
+dharam|50|2003|phy|f_exam|15/06/1989|3490|pass|M
+sunil|70|2004|chem|s_exam|23/07/2007|4500|pass|M
+vikas|80|2004|math|f_exam|18/12/2001|2098|fail|M
+roit|30|2000|eng|s_exam|01/01/1992|4900|supp|F
+sesh|65|2117|hindi|f_exam|01/11/1998|5000|fail|F
+abhi|65|2017|hindi|f_exam|01/11/1998|5000|fail|F
+nares|65|2127|hindi|f_exam|01/11/1998|5000|fail|F
+

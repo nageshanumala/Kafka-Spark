@@ -1,0 +1,52 @@
+# Last amended: 28/01/2018
+# My folder /home/ashok/Documents/hadoop_streaming/
+# Ref: http://techalpine.com/how-hadoop-streaming-works/
+
+How Hadoop Streaming works?
+
+Overview: Hadoop streaming is one of the most important utility in Hadoop distribution.
+The Streaming interface of Hadoop allows you to write Map-Reduce program in any language
+of your choice, which can work with STDIN and STDOUT. So, Streaming can also be defined
+as a generic Hadoop API which allows Map-Reduce programs to be written in virtually any
+language. In this approach Mapper receive input on STDIN and emit output on STDOUT.
+Although Hadoop is written in Java and it is the common language for Map-Reduce job,
+the Streaming API gives the flexibility to write Map-Reduce job in any language.
+
+Introduction: Hadoop Streaming is a generic API which allows writing Mapper and Reduces
+in any language. But the basic concept remains the same. Mappers and Reducers receive
+their input and output on stdin and stdout as (key, value) pairs. Apache Hadoop uses
+streams as per UNIX standard between your application and Hadoop system. Streaming
+is the best fit for text processing. The data view is line oriented and processed as key/value
+pair separated by ‘tab’ character. The program reads each line and processes it as per requirement.
+
+Working with Hadoop Streams: In any Map-Reduce job, we have input and output as key/value pairs.
+The same concept is true for Streaming API. In Streaming, input and output are always represented
+as text. The (key, value) input pairs are written on stdin for a Mapper and Reducer. The ‘tab’ character
+is used to separate key and value. The Streaming program uses the ‘tab’ character to split a line into
+key/value pair. The same procedure is followed for output. The Streaming program writes their output on
+stdout following the same format as mentioned below.
+
+key1 \t value1 \n
+
+key2 \t value2 \n
+
+key3 \t value3 \n
+
+In this process each line contains only one key/value pair. So the input to the reducer is sorted
+so that all the same keys are placed adjacent to one another.
+
+Any program or tool can be used as Mapper and Reducer if they are capable of handling input in text
+format as described above. Other scripts like perl, python or bash can also be used for this purpose,
+provided all the nodes are having interpreter to understand the language.
+
+Execution steps:  Hadoop Streaming utility allows any script or executable to work as Mapper/Reducer
+provided they can work with stdin and stdout. In this section I will describe the implementation steps
+of the Streaming utility. I will assume two sample programs to work as Mapper and Reducer.
+
+
+Hadoop streaming job will conceptually execute mappers and reducers on all chinks of data parallely.
+MAppers and reducsers will be fed chunks of data on that machine in key-value format.
+=======================
+
+
+

@@ -1,0 +1,294 @@
+# Last amended: 14th Sep, 2018
+# My folder: /home/ashok/Documents/hadoop_streaming
+
+
+""" 
+References:
+	1. http://www.catonmat.net/blog/awk-book/
+	2. http://www.catonmat.net/blog/wp-content/uploads/2008/09/awk1line.txt
+	3. http://www.catonmat.net/download/awk.cheat.sheet.txt
+	4. http://www.catonmat.net/blog/awk-one-liners-explained-part-one/
+	5. http://www.catonmat.net/blog/awk-one-liners-explained-part-two/
+	6. http://www.catonmat.net/blog/awk-one-liners-explained-part-three/
+
+"""
+
+
+## Objectives:
+#	1. Learn awk programming 
+#       2. awk special variables
+#       3. awk BEGIN and END patterns
+#       4. awk match pattern in a field
+
+
+# 1.0 A typical awk program:
+
+	awk '
+	      pattern { action }
+	      pattern { action }
+	      ...
+            '  file1 file2 ...
+
+#  Awk automatically splits each line into columns and
+#  puts each column in variables $1, $2, $3, etc. 
+#  $0 stores complete line.
+#  When awk splits a line, the character at which
+#  split is to occur must also be indicated.
+#  Default split point is space. The following line
+#  has four fields:
+
+	this line has five fields
+
+	this =>   $1
+	line =>   $2
+	has  =>   $3
+	five =>   $4
+	fields => $5
+        this line has five fields => $0
+	        
+
+
+# 2.0 Change folder
+
+       cd /home/ashok/Documents/hadoop_streaming
+
+
+
+# 3.0 
+#  This one-liner prints just the 2nd field of
+#   each line. This value is available in variable
+#    $2.
+#  This awk statement contains no 'pattern' statement.
+#  It implies, just take the {action}.
+
+
+	awk '{ print $2 }' bbs-list.txt
+
+
+# 3.1 In an awk rule, either the pattern or the
+#     action can be omitted, but not both. If the
+#     pattern is omitted, then the action is
+#     performed for every input line. If the action
+#     is omitted, the default action is to print
+#     all lines that match the pattern.
+
+
+## 3.2 action statement missing. 
+#      Default action is print line:
+
+	awk '/th/'  bbs-list.txt
+
+
+# 3.3 Print two fields per line:
+
+	awk '{ print $2  $1 }' bbs-list.txt
+
+
+# 3.4 Print two fields separated by space
+
+	awk '{ print $2 " " $1 }' bbs-list.txt
+
+
+# 3.5 Print two fields separated by newline
+
+	awk '{ print $2 "\n" $1 }' bbs-list.txt
+
+# 3.6 The above is same as two print statements:
+#     Each print is followed by new line:
+
+	awk '{ print $2 ; print $1 }' bbs-list.txt
+
+
+# 3.7 Print those lines where a pattern '21' occurs.
+#     This awk statement only contains pattern but
+#     no explicit acton. Default action is { print $0 }.
+#     All of the following three statements are same:
+
+	awk ' /21/ ' bbs-list.txt
+
+        awk ' /21/ {print } ' bbs-list.txt
+
+        awk ' /21/ {print $0 } ' bbs-list.txt
+
+
+#     The slashes around 21, indicate that ‘21’
+#     is a pattern to search for. This type of
+#     pattern is called a regular expression,
+#     print $0’ means print the current line
+
+
+# 3.8 Search for pattern 'foo' :
+
+       awk '/foo/ { print $0 }' bbs-list.txt
+
+# 3.9 And print lines which do not match pattern:
+
+	awk '!/foo/ { print $0 }' bbs-list.txt
+
+
+# 3.10 This awk statement contains two rules:
+
+	awk ' /12/ { print $0 }
+      	      /21/ {  print $0 }
+            ' bbs-list.txt
+
+# 3.11 Above rules are same as:
+
+        awk ' /12/ { print $0 } ;  /21/ {  print $0 }' bbs-list.txt
+
+# 3.12 Another set of two rules:
+
+	awk '  { print $2 } ; /foo/ {print $1 }' bbs-list.txt
+
+
+
+
+# 4
+
+## 4.1 awk contains a number of special variables
+##     such as, 
+#           NR : Number of records seen so far by awk
+#                As each line passes through awk, NR gets incremented by 1
+#	    NF : Field number. For every line, as each field passes
+#                through awk, NF is icnremented by 1.
+#           RS : Record separator (default is newline or \n )
+#           FS : Field  separator (default space)
+#          ORS : Output Record separator ie while printing output (default \n)         
+
+
+# 4.2 Print each record preceded by line-number:
+#     The whole line itself goes into variable $0.
+#      This one-liner prints line but prepends 
+#       value of NR special variable and a 
+#        colon ": " after it.
+#        The special variable NR always contains the 
+#         current line number.
+# Try it:
+
+	awk '{ print NR ": " $0 }' bbs-list.txt
+
+
+# 4.3 Precede each line by its line number 
+#     followed by tab. Process multiple files:
+
+	awk '{print NR "\t" $0}' bbs-list.txt inv-ship.txt
+	awk '{print NR "\t" $0}' *-*.txt
+
+
+
+## 5. BEGIN and END patterns:
+#     BEGIN and END are special patterns. They 
+#     are not used to match input records. Rather,
+#     they are used for supplying start-up or
+#     clean-up information to your awk script.
+#     A BEGIN rule is executed, once, before the
+#     first input record has been read. An END 
+#     rule is executed, once, after all the input
+#     has been read.
+
+#     Assume record separator is '/', 
+#     The following single line contains TWO records,
+#     each with four fields:
+
+      "this is first record/this is second record"
+
+#     In the following rule, a special variable,
+#     RS is used to define Record Separator.
+#     Record Separator is forward slash (/).
+
+        awk ' BEGIN { RS = "/" } 
+              { print $0 }' bbs-list.txt
+
+
+# 5.1 Count the number of words in a file.
+#     Assume each word has a space before
+#     and after it.
+#     Here another special variable is used.
+#     It's the NF that stands for number of fields,
+#     or number of columns, or number of words in
+#     the current line. 
+#     This one-liner then just sums the total number
+#     of words up and prints them before quitting
+#     in the END block.
+
+	awk '{ total = total + NF } 
+             END { print total }' howStreamingWorks.txt 
+
+
+## 6. Different field separator:
+#     Suppose you want to print the list of all users
+#     on your system. With Awk it's as simple as this
+#     one-liner:
+
+# 6.1 First have a look at the file:
+
+	cat /etc/passwd
+
+# 6.2 Now just print the user names
+#     Take each line from /etc/passwd, 
+#     split it on the colon and print
+#     the first field of each line."
+
+	awk -F: '{ print $1 }' /etc/passwd
+
+
+# 6.3 Use special variable FS, as with BEGIN pattern:
+
+	awk 'BEGIN { FS = ":" } 
+            { print $1 }' /etc/passwd
+
+
+# 6.4 And here is the first field of a csv file:
+
+	awk -F, '{ print $1 }' inv-ship.csv
+
+
+
+## 7. END pattern
+
+#   Two rules. The IInd rule increments the variable
+#   foobar every time a record containing the pattern
+#   ‘foo’ is read. The END rule prints the value of 
+#   foobar at the end of the run.
+
+        awk 'BEGIN { print "Analysis of ‘foo’" }
+             /foo/ { ++foobar }
+             END { print "‘foo’ appears " foobar " times." }' bbs-list.txt
+
+## 8. Match a pattern occurring in specifc field:
+
+## 8.1 Print each record in the file ‘bbs-list.txt' whose first field ($1)
+#     contains the string ‘foo’. The operator ‘~’ is called a matching
+#     operator. It tests whether the field $1 matches a given regular
+#     expression.
+
+	awk '$1 ~ /foo/ { print $0 }' bbs-list.txt
+
+# 8.2 Third field starts with '21'.
+#     The -F'|' sets the field separator to |. The $3~/^21/ will be true
+#     if the 3rd field starts with 21. 
+
+	awk -F'|' '$3~/^21/' smarks.txt
+
+# 8.3 Third field matches '12' that occur at position 2 within the field
+
+	awk -F'|' 'substr($3,2,2) ~/12/' smarks.txt
+
+
+# 9. Print lines from 8 to 12:
+
+	awk 'NR==8,NR==12' bbs-list.txt 
+
+
+# 9.1 Substitute (find and replace) "foo" with "bar"
+#     on each line
+
+	awk '{gsub(/foo/,"bar");print} ' bbs-list.txt
+
+# 9.2 Substitute "foo" with "bar" EXCEPT for lines 
+#     which contain "baz"
+
+	awk '!/baz/ {gsub(/foo/, "bar")};{print}' bbs-list.txt
+
+#######################################
+

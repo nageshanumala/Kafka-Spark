@@ -1,0 +1,68 @@
+## Last amended: 17th January, 2018
+## My folder: /home/ashok/Documents/hadoop_streaming
+## Ref:  file:///home/ashok/hadoop/share/doc/hadoop/hadoop-mapreduce-client/hadoop-mapreduce-client-core/HadoopStreaming.html
+## Objective simple expt on hadoop streaming
+
+
+## Example 1
+# 1.0 Upload requisite file after deleting existing folder
+
+#	hdfs dfs -rm -r /user/ashok/data_files/streaming
+#	hdfs dfs -mkdir /user/ashok/data_files/streaming
+#	hdfs dfs -put /home/ashok/Documents/hadoop_streaming/smarks.txt /user/ashok/data_files/streaming
+#	hdfs dfs -cat /user/ashok/data_files/streaming/smarks.txt
+	
+	
+# 2. And also extract from this file fields, 1 to 3 and 6 to 7 in linux file system
+
+cut -f1-3,6-7 /home/ashok/Documents/hadoop_streaming/smarks.txt 
+
+
+# 3.0 Apply cut in hadoop file system
+
+c2='cut -f1-3,6-7' 
+HSTREAMING='/home/ashok/hadoop/share/hadoop/tools/lib/hadoop-streaming-2.6.0.jar'
+
+hadoop jar $HSTREAMING \
+    -D mapreduce.job.name='Experiment' \
+    -input /user/ashok/data_files/streaming/smarks.txt \
+    -output /user/ashok/data_files/streaming/student_out \
+    -mapper "$c2" \
+    -reducer 'cat'
+
+# 4. Check the processed output file
+
+hdfs dfs -cat /user/ashok/data_files/streaming/student_out/part-00000
+	
+##########
+## Example 2
+#########
+
+# mapper is:  'cat' ; reducer is 'awk' script
+
+hdfs dfs -rm -r /user/ashok/data_files/streaming/student_out
+
+hadoop jar $HSTREAMING \
+    -D mapreduce.job.name='Experiment' \
+    -input /user/ashok/data_files/streaming/smarks.txt \
+    -output /user/ashok/data_files/streaming/student_out \
+    -mapper /bin/cat \
+    -reducer 'awk "{ print $1 , $2 }" '
+    
+hdfs dfs -cat /user/ashok/data_files/streaming/student_out/part-00000
+
+################
+
+hdfs dfs -rm -r /user/ashok/data_files/streaming/student_out
+
+hadoop jar /home/ashok/hadoop/share/hadoop/tools/lib/hadoop-streaming-2.6.0.jar \
+    -D mapreduce.job.name='Experiment' \
+    -input /user/ashok/data_files/streaming/smarks.txt \
+    -output /user/ashok/data_files/streaming/student_out \
+    -mapper /bin/cat \
+    -reducer 'awk "{ print $1 , $2 }" '
+    
+hdfs dfs -cat /user/ashok/data_files/streaming/student_out/part-00000
+
+
+#################

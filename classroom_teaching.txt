@@ -1,0 +1,12 @@
+# Last amended: 15/09/2018
+# Myfolder: /home/ashok/Documents/hadoop_streaming/
+
+
+# 1. File awk_oneliners.txt 	(/home/ashok/Documents/hadoop_streaming/)
+
+## libsvm folder
+
+# 2. File smarks.awk  		(/home/ashok/Documents/hadoop_streaming/libsvm_hadoop_streaming)
+#
+# 3. File hadoop_smarks_stream.sh (/home/ashok/Documents/hadoop_streaming/libsvm_hadoop_streaming)
+#    Contains two examples
